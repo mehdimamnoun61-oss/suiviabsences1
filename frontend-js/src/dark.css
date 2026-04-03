@@ -1,0 +1,270 @@
+/* Dark Mode — applied when html has data-theme="dark" */
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root,
+html[data-theme="dark"] .app-layout,
+html[data-theme="dark"] .main-content,
+html[data-theme="dark"] .page-content {
+  background-color: #0F172A !important;
+  color: #F1F5F9 !important;
+}
+
+html[data-theme="dark"] .content-card,
+html[data-theme="dark"] .card {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .premium-header {
+  background: rgba(15,23,42,0.92) !important;
+  border-bottom-color: rgba(51,65,85,0.6) !important;
+}
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F1F5F9 !important;
+}
+
+html[data-theme="dark"] .table thead th {
+  background: #1E293B !important;
+  color: #94A3B8 !important;
+  border-bottom-color: #334155 !important;
+}
+html[data-theme="dark"] .table td {
+  color: #E2E8F0 !important;
+  border-bottom-color: #1E293B !important;
+  background-color: #1E293B !important;
+}
+html[data-theme="dark"] .table tbody tr { background-color: #1E293B !important; }
+html[data-theme="dark"] .table tbody tr:hover { background-color: #243044 !important; }
+html[data-theme="dark"] .table-responsive { background: #1E293B !important; }
+html[data-theme="dark"] .table { background: #1E293B !important; color: #E2E8F0 !important; }
+
+html[data-theme="dark"] .page-title,
+html[data-theme="dark"] .table-title,
+html[data-theme="dark"] .form-section-title,
+html[data-theme="dark"] .section-card-title,
+html[data-theme="dark"] .ph-page { color: #F1F5F9 !important; }
+
+html[data-theme="dark"] .page-description,
+html[data-theme="dark"] .stats-label,
+html[data-theme="dark"] .label-muted,
+html[data-theme="dark"] .empty-text,
+html[data-theme="dark"] .empty-box { color: #94A3B8 !important; }
+
+html[data-theme="dark"] .stats-value { color: #F1F5F9 !important; }
+
+html[data-theme="dark"] .page-badge {
+  background: rgba(79,70,229,0.15) !important;
+  border-color: rgba(79,70,229,0.25) !important;
+  color: #818CF8 !important;
+}
+
+html[data-theme="dark"] .value-chip.chip-blue   { background: rgba(79,70,229,0.2) !important;  color: #818CF8 !important; }
+html[data-theme="dark"] .value-chip.chip-green  { background: rgba(34,197,94,0.15) !important; color: #4ADE80 !important; }
+html[data-theme="dark"] .value-chip.chip-orange { background: rgba(245,158,11,0.15) !important;color: #FCD34D !important; }
+html[data-theme="dark"] .value-chip.chip-red    { background: rgba(239,68,68,0.15) !important; color: #FCA5A5 !important; }
+html[data-theme="dark"] .value-chip.chip-purple { background: rgba(168,85,247,0.15) !important;color: #C084FC !important; }
+html[data-theme="dark"] .value-chip.chip-yellow { background: rgba(234,179,8,0.15) !important; color: #FDE68A !important; }
+
+html[data-theme="dark"] .alert-success {
+  background: rgba(34,197,94,0.1) !important;
+  border-color: rgba(34,197,94,0.2) !important;
+  color: #4ADE80 !important;
+}
+html[data-theme="dark"] .alert-danger {
+  background: rgba(239,68,68,0.1) !important;
+  border-color: rgba(239,68,68,0.2) !important;
+  color: #FCA5A5 !important;
+}
+
+html[data-theme="dark"] .btn-secondary {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #E2E8F0 !important;
+}
+
+html[data-theme="dark"] .ph-search { background: #1E293B !important; border-color: #334155 !important; }
+html[data-theme="dark"] .ph-search-input { color: #F1F5F9 !important; }
+html[data-theme="dark"] .ph-icon-btn,
+html[data-theme="dark"] .ph-user-btn { background: #1E293B !important; border-color: #334155 !important; color: #94A3B8 !important; }
+html[data-theme="dark"] .ph-dropdown { background: #1E293B !important; border-color: #334155 !important; }
+html[data-theme="dark"] .ph-dd-header,
+html[data-theme="dark"] .ph-notif-name,
+html[data-theme="dark"] .ph-uc-name,
+html[data-theme="dark"] .ph-user-name { color: #F1F5F9 !important; }
+html[data-theme="dark"] .ph-dd-sep { background: #334155 !important; }
+html[data-theme="dark"] .ph-notif-item:hover { background: #243044 !important; }
+html[data-theme="dark"] .ph-dd-body { background: #1E293B !important; }
+html[data-theme="dark"] .ph-kbd { background: #1E293B !important; border-color: #334155 !important; color: #64748B !important; }
+
+html[data-theme="dark"] .ss-modal { background: #1E293B !important; border-color: #334155 !important; }
+html[data-theme="dark"] .ss-input { color: #F1F5F9 !important; background: transparent !important; }
+html[data-theme="dark"] .ss-item-label { color: #F1F5F9 !important; }
+html[data-theme="dark"] .ss-item:hover,
+html[data-theme="dark"] .ss-active { background: rgba(79,70,229,0.15) !important; }
+html[data-theme="dark"] .ss-input-wrap { border-bottom-color: #334155 !important; }
+html[data-theme="dark"] .ss-footer { border-top-color: #334155 !important; }
+html[data-theme="dark"] .ss-footer kbd { background: #334155 !important; border-color: #475569 !important; color: #94A3B8 !important; }
+html[data-theme="dark"] .ss-item-icon { background: #334155 !important; color: #94A3B8 !important; }
+html[data-theme="dark"] .ss-section-title,
+html[data-theme="dark"] .ss-item-sub { color: #475569 !important; }
+
+html[data-theme="dark"] .list-group-item {
+  background: transparent !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+html[data-theme="dark"] .dm-track { background: #334155 !important; border-color: #475569 !important; }
+
+/* ── Form fields dark mode ───────────────────────────────────────────── */
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+  background-color: #1F2937 !important;
+  color: #F9FAFB !important;
+  border-color: #374151 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+}
+
+html[data-theme="dark"] .form-control:hover,
+html[data-theme="dark"] .form-select:hover {
+  background-color: #243044 !important;
+  border-color: #4B5563 !important;
+}
+
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .form-select:focus {
+  background-color: #1E293B !important;
+  border-color: #4F46E5 !important;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.25), 0 2px 8px rgba(0,0,0,0.3) !important;
+  color: #F9FAFB !important;
+}
+
+html[data-theme="dark"] .form-control::placeholder { color: #6B7280 !important; }
+
+html[data-theme="dark"] .form-control.is-invalid,
+html[data-theme="dark"] .form-select.is-invalid {
+  background-color: rgba(239,68,68,0.08) !important;
+  border-color: #EF4444 !important;
+}
+
+html[data-theme="dark"] .form-check-input {
+  background-color: #374151 !important;
+  border-color: #4B5563 !important;
+}
+html[data-theme="dark"] .form-check-input:checked {
+  background-color: #4F46E5 !important;
+  border-color: #4F46E5 !important;
+}
+html[data-theme="dark"] .form-check-label { color: #D1D5DB !important; }
+
+/* ── Buttons dark mode ───────────────────────────────────────────────── */
+html[data-theme="dark"] .btn-outline-secondary {
+  color: #94A3B8 !important;
+  border-color: #334155 !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .btn-outline-secondary:hover {
+  background: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+html[data-theme="dark"] .btn-outline-danger {
+  color: #FCA5A5 !important;
+  border-color: rgba(239,68,68,0.4) !important;
+}
+html[data-theme="dark"] .btn-outline-danger:hover {
+  background: rgba(239,68,68,0.15) !important;
+}
+
+html[data-theme="dark"] .btn-warning {
+  background: linear-gradient(135deg, #D97706, #F59E0B) !important;
+  border: none !important;
+  color: white !important;
+}
+
+html[data-theme="dark"] .btn-danger {
+  background: linear-gradient(135deg, #DC2626, #EF4444) !important;
+  border: none !important;
+}
+
+/* ── Select options dark ─────────────────────────────────────────────── */
+html[data-theme="dark"] select option {
+  background-color: #1F2937 !important;
+  color: #F9FAFB !important;
+}
+
+/* ── Input date/time dark ────────────────────────────────────────────── */
+html[data-theme="dark"] input[type="date"],
+html[data-theme="dark"] input[type="time"] {
+  color-scheme: dark;
+}
+
+/* ── Dark Mode: sidebar stays dark, main content changes ────────────── */
+
+/* Light mode — main content bright */
+html[data-theme="light"] .main-content,
+html[data-theme="light"] .page-content,
+html[data-theme="light"] #root,
+html[data-theme="light"] body {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+/* Sidebar always stays dark regardless of theme */
+.sidebar-custom {
+  background: #0F172A !important;
+  border-right: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+}
+
+/* Dark mode — main content dark, sidebar slightly different */
+html[data-theme="dark"] .main-content,
+html[data-theme="dark"] .page-content {
+  background-color: #111827 !important;
+}
+
+html[data-theme="dark"] .sidebar-custom {
+  background: #1F2937 !important;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+}
+
+/* Sidebar links stay the same in both modes */
+html[data-theme="dark"] .sidebar-link,
+html[data-theme="light"] .sidebar-link {
+  color: #64748B !important;
+}
+html[data-theme="dark"] .sidebar-link:hover,
+html[data-theme="light"] .sidebar-link:hover {
+  background: rgba(255,255,255,0.07) !important;
+  color: #CBD5E1 !important;
+}
+html[data-theme="dark"] .sidebar-link.active,
+html[data-theme="light"] .sidebar-link.active {
+  background: linear-gradient(135deg, rgba(79,70,229,0.85), rgba(99,102,241,0.75)) !important;
+  color: white !important;
+}
+
+/* Sidebar section titles stay same */
+html[data-theme="dark"] .sidebar-section-title,
+html[data-theme="light"] .sidebar-section-title {
+  color: #334155 !important;
+}
+
+/* Sidebar brand stays same */
+html[data-theme="dark"] .sidebar-brand,
+html[data-theme="light"] .sidebar-brand {
+  border-bottom-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Sidebar user stays same */
+html[data-theme="dark"] .sidebar-user-name,
+html[data-theme="light"] .sidebar-user-name { color: #E2E8F0 !important; }
+html[data-theme="dark"] .sidebar-user-role,
+html[data-theme="light"] .sidebar-user-role { color: #475569 !important; }
+html[data-theme="dark"] .sidebar-appname,
+html[data-theme="light"] .sidebar-appname { color: #334155 !important; }
