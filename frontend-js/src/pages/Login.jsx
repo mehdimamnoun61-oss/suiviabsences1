@@ -44,9 +44,14 @@ function Login() {
         maxWidth: 400,
         boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
       }}>
-        <h2 style={{ textAlign: "center", marginBottom: "1.5rem", color: "#1e3a5f" }}>
-          Connexion
-        </h2>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: "1.5rem" }}>
+          <img
+            src="/logo.jpg.jpeg"
+            alt="Logo"
+            style={{ width: 80, height: 80, borderRadius: 16, objectFit: "cover", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}
+          />
+          <h2 style={{ textAlign: "center", color: "#1e3a5f", margin: 0 }}>Connexion</h2>
+        </div>
 
         {error && (
           <div className="alert alert-danger" role="alert">{error}</div>

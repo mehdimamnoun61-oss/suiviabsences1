@@ -195,7 +195,6 @@ function Seances() {
         searchKeys={["affectation_label", "date_seance", "statut"]}
         filters={filtersJSX}
         exportItems={exportItems}
-        topRight={<Button variant="primary" size="sm" icon={addIcon} onClick={() => { resetForm(); setShowForm(true) }}>Ajouter</Button>}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />

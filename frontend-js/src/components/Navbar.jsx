@@ -19,7 +19,7 @@ const PAGE_TITLES = {
   "/feuille-presence": "Feuille de presence",
 }
 
-function Navbar() {
+function Navbar({ onMenuToggle }) {
   const location = useLocation()
   const navigate = useNavigate()
   const [notifs,    setNotifs]    = useState([])
@@ -95,6 +95,12 @@ function Navbar() {
 
       {/* LEFT */}
       <div className="ph-left">
+        {/* Hamburger — mobile only */}
+        <button className="ph-hamburger" onClick={onMenuToggle} aria-label="Menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <div className="ph-breadcrumb">
           <span className="ph-app">AbsencePro</span>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: "#CBD5E1" }}>

@@ -50,7 +50,7 @@ const rapportItems = [
   { to: "/feuille-presence", label: "Feuille presence"  },
 ]
 
-function Sidebar() {
+function Sidebar({ open, onClose }) {
   const navigate = useNavigate()
   const role     = localStorage.getItem("role") || "administration"
   const userName = localStorage.getItem("userName") || "Utilisateur"
@@ -74,13 +74,15 @@ function Sidebar() {
   const initials = userName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
 
   return (
-    <aside className="sidebar-custom">
+    <aside className={`sidebar-custom ${open ? "sidebar-open" : ""}`}>
       {/* Logo */}
       <div className="sidebar-brand">
         <div className="sidebar-logo">
-          <div className="sidebar-logo-epg">
-            <span className="epg-e">E</span><span className="epg-p">P</span><span className="epg-g">G</span>
-          </div>
+          <img
+            src="/logo.jpg.jpeg"
+            alt="Logo"
+            style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}
+          />
           <div className="sidebar-logo-text">
             <span className="logo-line1">Ecole Polytechnique</span>
             <span className="logo-line2">Des Genies</span>

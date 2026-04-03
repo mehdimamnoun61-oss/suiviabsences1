@@ -128,7 +128,14 @@ function Etudiants() {
       )}
 
       <Modal open={showForm} onClose={resetForm} title={editId ? "Modifier un etudiant" : "Ajouter un etudiant"} size="lg"
-        footer={<div className="ui-modal-actions"><Button variant="secondary" onClick={resetForm}>Annuler</Button><Button variant="primary" loading={saving} onClick={handleSubmit} type="button">{editId ? "Mettre a jour" : "Ajouter"}</Button></div>}
+        footer={
+          <div className="ui-modal-actions">
+            <Button variant="secondary" onClick={resetForm}>Annuler</Button>
+            <Button variant="primary" loading={saving} onClick={handleSubmit} type="button">
+              {editId ? "Mettre a jour" : "Ajouter"}
+            </Button>
+          </div>
+        }
       >
         {errors._general && <div className="ui-toast ui-toast-error" style={{ marginBottom: 14 }}>{errors._general}</div>}
         <form onSubmit={handleSubmit} noValidate>
@@ -143,7 +150,9 @@ function Etudiants() {
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
               <label className="label-muted">Sexe</label>
               <select className={"form-select" + (errors.sex ? " is-invalid" : "")} name="sex" value={formData.sex} onChange={handleChange}>
-                <option value="">Choisir</option><option value="homme">Homme</option><option value="femme">Femme</option>
+                <option value="">Choisir</option>
+                <option value="homme">Homme</option>
+                <option value="femme">Femme</option>
               </select>
               <FieldError errors={errors} field="sex" />
             </div>
@@ -159,11 +168,17 @@ function Etudiants() {
         </form>
       </Modal>
 
-      <DataTable title="Liste des etudiants" columns={columns} data={filtered} loading={loading}
-        emptyText="Aucun etudiant trouve." searchKeys={["nom", "prenom", "email", "tel", "classe_nom"]}
-        filters={filtersJSX} exportItems={exportItems}
-        topRight={<Button variant="primary" size="sm" icon={addIcon} onClick={() => { resetForm(); setShowForm(true) }}>Ajouter</Button>}
-        onEdit={handleEdit} onDelete={handleDelete}
+      <DataTable
+        title="Liste des etudiants"
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        emptyText="Aucun etudiant trouve."
+        searchKeys={["nom", "prenom", "email", "tel", "classe_nom"]}
+        filters={filtersJSX}
+        exportItems={exportItems}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
     </div>
   )

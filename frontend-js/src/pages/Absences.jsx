@@ -217,7 +217,6 @@ function Absences() {
         searchKeys={["etudiant_nom", "seance_label", "statut"]}
         filters={filtersJSX}
         exportItems={exportItems}
-        topRight={<Button variant="primary" size="sm" icon={addIcon} onClick={() => { resetForm(); setShowForm(true) }}>Ajouter</Button>}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />

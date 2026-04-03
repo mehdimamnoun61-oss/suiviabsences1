@@ -181,11 +181,6 @@ function Classes() {
         emptyText="Aucune classe trouvee."
         searchKeys={["nom_classe", "filiere", "niveau", "groupe", "annee_scolaire"]}
         exportItems={exportItems}
-        topRight={
-          <Button variant="primary" size="sm" icon={<IconPlus />} onClick={() => { resetForm(); setShowForm(true) }}>
-            Ajouter
-          </Button>
-        }
         onEdit={handleEdit}
         onDelete={handleDelete}
       />

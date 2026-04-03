@@ -140,7 +140,6 @@ function Modules() {
         emptyText="Aucun module trouvé."
         searchKeys={["nom_module"]}
         exportItems={exportItems}
-        topRight={<Button variant="primary" size="sm" icon={addIcon} onClick={() => { resetForm(); setShowForm(true) }}>Ajouter</Button>}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
