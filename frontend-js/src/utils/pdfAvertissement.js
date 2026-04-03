@@ -1,230 +1,338 @@
 import jsPDF from "jspdf"
 
-/**
- * Génère un PDF d'avertissement officiel pour un étudiant
- *
- * @param {Object} params
- * @param {Object} params.etudiant  - { nom, prenom, email, classe }
- * @param {Array}  params.modules   - [{ nom_module, volume_horaire }]
- * @param {number} params.taux      - taux d'absence en %
- * @param {string} params.niveau    - "Observation" | "Avertissement" | "Convocation"
- */
-export function generateAvertissementPDF({ etudiant, modules, taux, niveau }) {
+export async function generateAvertissementPDF({ etudiant, taux, niveau }) {
   const doc = new jsPDF({ unit: "mm", format: "a4" })
+  const PW = 210
+  const PH = 297
+  const ML = 20
+  const MR = 20
+  const TW = PW - ML - MR
 
-  const today = new Date().toLocaleDateString("fr-MA", {
-    day: "2-digit", month: "long", year: "numeric",
+  const today = new Date().toLocaleDateString("fr-FR", {
+    day: "2-digit", month: "2-digit", year: "numeric",
   })
 
-  const primaryColor = [15, 23, 42]    // #0f172a  (sidebar color)
-  const accentColor  =
-    taux >= 30 ? [220, 38, 38]  :      // rouge  — Convocation
-    taux >= 20 ? [249, 115, 22] :      // orange — Avertissement
-                 [245, 158, 11]         // jaune  — Observation
+  // ── Colors ────────────────────────────────────────────────────────────
+  const DARK_BLUE = [26, 54, 93]
+  const RED       = [200, 0, 0]
+  const BLACK     = [0, 0, 0]
+  const GRAY      = [80, 80, 80]
+  const WHITE     = [255, 255, 255]
+  const EPG_BLUE  = [26, 54, 93]
+  const EPG_ORA   = [214, 100, 0]
 
-  const pageW = 210
-  const margin = 20
+  // Load logo as base64
+  let logoBase64 = null
+  try {
+    const resp = await fetch("/logo.jpg")
+    if (resp.ok) {
+      const blob = await resp.blob()
+      logoBase64 = await new Promise((res) => {
+        const reader = new FileReader()
+        reader.onload = () => res(reader.result)
+        reader.readAsDataURL(blob)
+      })
+    }
+  } catch { logoBase64 = null }
 
-  // ── En-tête ──────────────────────────────────────────────────────────────
-  doc.setFillColor(...primaryColor)
-  doc.rect(0, 0, pageW, 35, "F")
+  // ── Helpers ───────────────────────────────────────────────────────────
+  const b  = () => doc.setFont("helvetica", "bold")
+  const n  = () => doc.setFont("helvetica", "normal")
+  const it = () => doc.setFont("helvetica", "italic")
+  const bi = () => doc.setFont("helvetica", "bolditalic")
+  const sz = (s) => doc.setFontSize(s)
+  const tc = ([r, g, bl]) => doc.setTextColor(r, g, bl)
 
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(18)
-  doc.setFont("helvetica", "bold")
-  doc.text("AbsencePro", margin, 15)
+  // ══════════════════════════════════════════════════════════════════════
+  // HEADER ROW 1 — logo area (left) + school name (right)
+  // ══════════════════════════════════════════════════════════════════════
+  let y = 8
 
-  doc.setFontSize(10)
-  doc.setFont("helvetica", "normal")
-  doc.text("Ecole Polytechnique des Génies", margin, 22)
-  doc.text("Système de gestion des absences", margin, 28)
+  // Left box border (logo area)
+  doc.setDrawColor(...DARK_BLUE)
+  doc.setLineWidth(0.8)
+  doc.rect(ML, y, 42, 28)
 
-  // ── Titre du document ────────────────────────────────────────────────────
-  doc.setFillColor(...accentColor)
-  doc.rect(0, 35, pageW, 18, "F")
-
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(13)
-  doc.setFont("helvetica", "bold")
-  const titreNiveau =
-    niveau === "Convocation"   ? "CONVOCATION POUR ABSENCES RÉPÉTÉES" :
-    niveau === "Avertissement" ? "AVERTISSEMENT POUR ABSENCES"        :
-                                 "OBSERVATION — TAUX D'ABSENCE ÉLEVÉ"
-  doc.text(titreNiveau, pageW / 2, 46, { align: "center" })
-
-  // ── Date et référence ────────────────────────────────────────────────────
-  doc.setTextColor(100, 116, 139)
-  doc.setFontSize(9)
-  doc.setFont("helvetica", "normal")
-  doc.text(`Date : ${today}`, pageW - margin, 60, { align: "right" })
-  doc.text(`Réf. : ABS-${etudiant.id}-${Date.now().toString().slice(-5)}`, pageW - margin, 65, { align: "right" })
-
-  // ── Informations étudiant ────────────────────────────────────────────────
-  doc.setDrawColor(229, 231, 235)
-  doc.setFillColor(248, 250, 252)
-  doc.roundedRect(margin, 70, pageW - 2 * margin, 42, 4, 4, "FD")
-
-  doc.setTextColor(...primaryColor)
-  doc.setFontSize(11)
-  doc.setFont("helvetica", "bold")
-  doc.text("Informations de l'étudiant", margin + 6, 80)
-
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(10)
-  doc.setTextColor(55, 65, 81)
-
-  const infoLeft  = margin + 6
-  const infoRight = pageW / 2 + 10
-
-  doc.text(`Nom complet :`, infoLeft, 90)
-  doc.setFont("helvetica", "bold")
-  doc.text(`${etudiant.nom} ${etudiant.prenom}`, infoLeft + 35, 90)
-
-  doc.setFont("helvetica", "normal")
-  doc.text(`Classe :`, infoRight, 90)
-  doc.setFont("helvetica", "bold")
-  doc.text(`${etudiant.classe}`, infoRight + 22, 90)
-
-  doc.setFont("helvetica", "normal")
-  doc.text(`Email :`, infoLeft, 99)
-  doc.setFont("helvetica", "bold")
-  doc.text(`${etudiant.email}`, infoLeft + 20, 99)
-
-  // ── Taux d'absence (visuel) ──────────────────────────────────────────────
-  doc.setDrawColor(229, 231, 235)
-  doc.setFillColor(248, 250, 252)
-  doc.roundedRect(margin, 118, pageW - 2 * margin, 30, 4, 4, "FD")
-
-  doc.setTextColor(...primaryColor)
-  doc.setFontSize(10)
-  doc.setFont("helvetica", "bold")
-  doc.text("Taux d'absence constaté :", margin + 6, 128)
-
-  // Barre de progression
-  const barX = margin + 6
-  const barY = 133
-  const barW = pageW - 2 * margin - 55
-  const barH = 7
-  const fillW = Math.min((taux / 100) * barW, barW)
-
-  doc.setFillColor(229, 231, 235)
-  doc.roundedRect(barX, barY, barW, barH, 2, 2, "F")
-
-  doc.setFillColor(...accentColor)
-  if (fillW > 0) doc.roundedRect(barX, barY, fillW, barH, 2, 2, "F")
-
-  // Valeur numérique
-  doc.setFontSize(20)
-  doc.setFont("helvetica", "bold")
-  doc.setTextColor(...accentColor)
-  doc.text(`${taux}%`, pageW - margin - 6, 141, { align: "right" })
-
-  // ── Seuils ───────────────────────────────────────────────────────────────
-  doc.setFontSize(8)
-  doc.setFont("helvetica", "normal")
-  doc.setTextColor(156, 163, 175)
-  doc.text("10% Obs.", barX, barY + barH + 5)
-  doc.text("20% Avert.", barX + barW * 0.2 - 3, barY + barH + 5)
-  doc.text("30% Conv.", barX + barW * 0.3 - 3, barY + barH + 5)
-
-  // ── Corps du message ─────────────────────────────────────────────────────
-  let yPos = 158
-
-  doc.setFontSize(10)
-  doc.setFont("helvetica", "bold")
-  doc.setTextColor(...primaryColor)
-  doc.text("Madame, Monsieur,", margin, yPos)
-  yPos += 10
-
-  doc.setFont("helvetica", "normal")
-  doc.setTextColor(55, 65, 81)
-  doc.setFontSize(10)
-
-  const corps =
-    niveau === "Convocation"
-      ? [
-          `Nous avons le regret de vous informer que votre taux d'absence a atteint ${taux}%,`,
-          `ce qui dépasse largement le seuil maximal autorisé de 30%.`,
-          ``,
-          `En conséquence, vous êtes convoqué(e) à vous présenter auprès de la direction`,
-          `pédagogique dans les plus brefs délais, muni(e) des justificatifs nécessaires.`,
-          ``,
-          `Le défaut de présentation pourrait entraîner des mesures disciplinaires.`,
-        ]
-      : niveau === "Avertissement"
-      ? [
-          `Nous constatons que votre taux d'absence s'élève actuellement à ${taux}%,`,
-          `dépassant le seuil d'avertissement fixé à 20%.`,
-          ``,
-          `Nous vous demandons de régulariser votre situation dans les meilleurs délais`,
-          `et de fournir les justificatifs correspondants à votre administration.`,
-          ``,
-          `Sans amélioration, vous ferez l'objet d'une convocation formelle.`,
-        ]
-      : [
-          `Votre taux d'absence actuel est de ${taux}%, ce qui dépasse le seuil`,
-          `d'observation de 10%.`,
-          ``,
-          `Nous attirons votre attention sur l'importance de la régularité`,
-          `dans votre parcours académique.`,
-          ``,
-          `Nous vous invitons à améliorer votre assiduité afin d'éviter`,
-          `un avertissement formel.`,
-        ]
-
-  corps.forEach((line) => {
-    doc.text(line, margin, yPos)
-    yPos += 6
-  })
-
-  // ── Modules concernés ────────────────────────────────────────────────────
-  if (modules && modules.length > 0) {
-    yPos += 4
-    doc.setFont("helvetica", "bold")
-    doc.setTextColor(...primaryColor)
-    doc.text("Modules concernés :", margin, yPos)
-    yPos += 7
-
-    doc.setFont("helvetica", "normal")
-    doc.setTextColor(55, 65, 81)
-    modules.forEach((m, i) => {
-      doc.setFillColor(...accentColor)
-      doc.circle(margin + 2, yPos - 1.5, 1.5, "F")
-      doc.text(`${m.nom_module}  (Volume horaire : ${m.volume_horaire}h)`, margin + 7, yPos)
-      yPos += 6
-      if (i > 3) { doc.text("...", margin + 7, yPos); yPos += 6; return false }
-    })
+  if (logoBase64) {
+    doc.addImage(logoBase64, "JPEG", ML + 1, y + 1, 40, 26)
+  } else {
+    b(); sz(18); tc(EPG_BLUE)
+    doc.text("E", ML + 3, y + 12)
+    tc(EPG_ORA)
+    doc.text("P", ML + 11, y + 12)
+    tc(EPG_BLUE)
+    doc.text("G", ML + 19, y + 12)
+    n(); sz(6.5); tc(DARK_BLUE)
+    doc.text("Ecole", ML + 28, y + 6)
+    doc.text("Polytechnique", ML + 28, y + 10)
+    doc.text("Des Génies", ML + 28, y + 14)
   }
 
-  // ── Signature ────────────────────────────────────────────────────────────
-  yPos = Math.max(yPos + 10, 240)
+  // Try to embed actual logo image
+  try {
+    // Logo already rendered above via logoBase64.
+  } catch {
+    // Fallback: EPG letters
+    b(); sz(18); tc(EPG_BLUE)
+    doc.text("E", ML + 3, y + 12)
+    tc(EPG_ORA)
+    doc.text("P", ML + 11, y + 12)
+    tc(EPG_BLUE)
+    doc.text("G", ML + 19, y + 12)
+    n(); sz(6.5); tc(DARK_BLUE)
+    doc.text("Ecole", ML + 28, y + 6)
+    doc.text("Polytechnique", ML + 28, y + 10)
+    doc.text("Des Génies", ML + 28, y + 14)
+  }
 
-  doc.setDrawColor(229, 231, 235)
-  doc.line(margin, yPos, pageW - margin, yPos)
-  yPos += 8
+  // School name — right side, large colored
+  // "E" blue, "cole " normal, "P" orange, "olytechnique " normal, "d" blue, "es " normal, "G" orange, "énies" normal
+  const nameX = ML + 50
+  const nameY = y + 16
+  sz(20)
 
-  doc.setFont("helvetica", "bold")
-  doc.setFontSize(10)
-  doc.setTextColor(...primaryColor)
-  doc.text("La Direction Pédagogique", pageW - margin, yPos, { align: "right" })
-  yPos += 6
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(9)
-  doc.setTextColor(100, 116, 139)
-  doc.text("Ecole Polytechnique des Génies", pageW - margin, yPos, { align: "right" })
+  b(); tc(EPG_BLUE);  doc.text("E", nameX, nameY)
+  const wE = doc.getTextWidth("E")
+  n(); tc(BLACK);     doc.text("cole ", nameX + wE, nameY)
+  const wCole = doc.getTextWidth("cole ")
+  b(); tc(EPG_ORA);   doc.text("P", nameX + wE + wCole, nameY)
+  const wP = doc.getTextWidth("P")
+  n(); tc(BLACK);     doc.text("olytechnique des ", nameX + wE + wCole + wP, nameY)
+  const wOly = doc.getTextWidth("olytechnique des ")
+  b(); tc(EPG_BLUE);  doc.text("G", nameX + wE + wCole + wP + wOly, nameY)
+  const wG = doc.getTextWidth("G")
+  n(); tc(BLACK);     doc.text("énies", nameX + wE + wCole + wP + wOly + wG, nameY)
 
-  // ── Pied de page ─────────────────────────────────────────────────────────
-  doc.setFillColor(...primaryColor)
-  doc.rect(0, 285, pageW, 12, "F")
-  doc.setTextColor(148, 163, 184)
-  doc.setFontSize(8)
-  doc.setFont("helvetica", "normal")
+  y += 30
+
+  // ══════════════════════════════════════════════════════════════════════
+  // DARK BLUE BANNER — establishment info
+  // ══════════════════════════════════════════════════════════════════════
+  doc.setFillColor(...DARK_BLUE)
+  doc.rect(0, y, PW, 18, "F")
+
+  tc(WHITE); sz(8.5)
+  b(); doc.text("Établissement :", ML + 35, y + 6)
+  n(); doc.text(" Ecole Polytechnique des Génies « Établissement Privé »", ML + 35 + doc.getTextWidth("Établissement :"), y + 6)
+  b(); doc.text("Adresse :", ML + 35, y + 12)
+  n(); doc.text(" 22 RUE MOHAMMED HAYANI V.N IMB HAZZAZ ETAGE 4 APP 20", ML + 35 + doc.getTextWidth("Adresse :"), y + 12)
+
+  y += 24
+
+  // ══════════════════════════════════════════════════════════════════════
+  // TITLE — red, centered, bold
+  // ══════════════════════════════════════════════════════════════════════
+  b(); sz(16); tc(RED)
+  doc.text("DEUXIÈME AVERTISSEMENT", PW / 2, y, { align: "center" })
+  y += 16
+
+  // ══════════════════════════════════════════════════════════════════════
+  // BODY
+  // ══════════════════════════════════════════════════════════════════════
+  sz(10.5); tc(BLACK)
+
+  // "À l'attention de :"
+  b(); doc.text("À l'attention de :", ML, y)
+  y += 6
+
+  // "Monsieur NOM PRENOM"
+  n(); doc.text("Monsieur ", ML, y)
+  b(); doc.text(`${etudiant.nom.toUpperCase()} ${etudiant.prenom}`, ML + doc.getTextWidth("Monsieur "), y)
+  y += 7
+
+  // Paragraph 1 — with inline bold
+  // "Suite à un premier avertissement professionnel déjà adressé..."
+  const renderMixedLine = (parts, x, yPos) => {
+    let cx = x
+    parts.forEach(([text, bold]) => {
+      if (bold) b(); else n()
+      doc.text(text, cx, yPos)
+      cx += doc.getTextWidth(text)
+    })
+    return cx
+  }
+
+  // P1 — split into lines manually using splitTextToSize for plain text width estimation
+  n(); sz(10.5)
+  const p1 = doc.splitTextToSize(
+    "Suite à un premier avertissement professionnel déjà adressé concernant vos absences répétées aux séances de cours sans justification valable, nous constatons que la situation persiste malgré nos rappels à l'ordre.",
+    TW
+  )
+  // Render with bold on key phrases
+  p1.forEach(line => {
+    if (line.includes("premier avertissement professionnel")) {
+      const idx = line.indexOf("premier avertissement professionnel")
+      const before = line.substring(0, idx)
+      const bold   = "premier avertissement professionnel"
+      const after  = line.substring(idx + bold.length)
+      let cx = ML
+      n(); doc.text(before, cx, y); cx += doc.getTextWidth(before)
+      b(); doc.text(bold, cx, y);   cx += doc.getTextWidth(bold)
+      n(); doc.text(after, cx, y)
+    } else if (line.includes("sans justification valable")) {
+      const idx = line.indexOf("sans justification valable")
+      const before = line.substring(0, idx)
+      const bold   = "sans justification valable"
+      const after  = line.substring(idx + bold.length)
+      let cx = ML
+      n(); doc.text(before, cx, y); cx += doc.getTextWidth(before)
+      b(); doc.text(bold, cx, y);   cx += doc.getTextWidth(bold)
+      n(); doc.text(after, cx, y)
+    } else {
+      n(); doc.text(line, ML, y)
+    }
+    y += 5.8
+  })
+  y += 3
+
+  // P2
+  const p2 = doc.splitTextToSize(
+    "Ces absences non justifiées continuent de nuire à votre progression pédagogique et au bon déroulement des apprentissages au sein du groupe.",
+    TW
+  )
+  n(); doc.text(p2, ML, y)
+  y += p2.length * 5.8 + 5
+
+  // P3 — "présence régulière aux cours" bold, "obligatoire" bold, "validation de votre formation" bold
+  const p3lines = doc.splitTextToSize(
+    "Nous vous rappelons une nouvelle fois que la présence régulière aux cours est obligatoire et conditionne la validation de votre formation.",
+    TW
+  )
+  p3lines.forEach(line => {
+    const boldPhrases = ["présence régulière aux cours", "obligatoire", "validation de votre formation"]
+    let remaining = line
+    let cx = ML
+    while (remaining.length > 0) {
+      let found = false
+      for (const phrase of boldPhrases) {
+        if (remaining.startsWith(phrase)) {
+          b(); doc.text(phrase, cx, y); cx += doc.getTextWidth(phrase)
+          remaining = remaining.substring(phrase.length)
+          found = true; break
+        }
+      }
+      if (!found) {
+        // find next bold phrase position
+        let nextIdx = remaining.length
+        let nextPhrase = ""
+        for (const phrase of boldPhrases) {
+          const idx = remaining.indexOf(phrase)
+          if (idx !== -1 && idx < nextIdx) { nextIdx = idx; nextPhrase = phrase }
+        }
+        const normalPart = remaining.substring(0, nextIdx)
+        n(); doc.text(normalPart, cx, y); cx += doc.getTextWidth(normalPart)
+        remaining = remaining.substring(nextIdx)
+      }
+    }
+    y += 5.8
+  })
+  y += 3
+
+  // P4 — "deuxième avertissement" bold, "manquement répété à l'assiduité" bold
+  const p4lines = doc.splitTextToSize(
+    "En conséquence, et conformément au règlement intérieur de l'établissement, nous vous adressons par la présente un deuxième avertissement pour manquement répété à l'assiduité.",
+    TW
+  )
+  p4lines.forEach(line => {
+    const boldPhrases = ["deuxième avertissement", "manquement répété à", "l'assiduité"]
+    let remaining = line
+    let cx = ML
+    while (remaining.length > 0) {
+      let found = false
+      for (const phrase of boldPhrases) {
+        if (remaining.startsWith(phrase)) {
+          b(); doc.text(phrase, cx, y); cx += doc.getTextWidth(phrase)
+          remaining = remaining.substring(phrase.length)
+          found = true; break
+        }
+      }
+      if (!found) {
+        let nextIdx = remaining.length
+        for (const phrase of boldPhrases) {
+          const idx = remaining.indexOf(phrase)
+          if (idx !== -1 && idx < nextIdx) nextIdx = idx
+        }
+        const normalPart = remaining.substring(0, nextIdx)
+        n(); doc.text(normalPart, cx, y); cx += doc.getTextWidth(normalPart)
+        remaining = remaining.substring(nextIdx)
+      }
+    }
+    y += 5.8
+  })
+  y += 3
+
+  // P5 — "mesure administrative ou pédagogique" bold, "suspension temporaire de participation aux cours ou aux évaluations" bold
+  const p5lines = doc.splitTextToSize(
+    "Nous vous invitons à faire preuve de rigueur et de responsabilité afin d'éviter toute mesure administrative ou pédagogique, pouvant aller jusqu'à une suspension temporaire de participation aux cours ou aux évaluations, selon la gravité de la situation.",
+    TW
+  )
+  p5lines.forEach(line => {
+    const boldPhrases = [
+      "mesure administrative ou pédagogique",
+      "suspension temporaire de",
+      "participation aux cours ou aux évaluations",
+    ]
+    let remaining = line
+    let cx = ML
+    while (remaining.length > 0) {
+      let found = false
+      for (const phrase of boldPhrases) {
+        if (remaining.startsWith(phrase)) {
+          b(); doc.text(phrase, cx, y); cx += doc.getTextWidth(phrase)
+          remaining = remaining.substring(phrase.length)
+          found = true; break
+        }
+      }
+      if (!found) {
+        let nextIdx = remaining.length
+        for (const phrase of boldPhrases) {
+          const idx = remaining.indexOf(phrase)
+          if (idx !== -1 && idx < nextIdx) nextIdx = idx
+        }
+        const normalPart = remaining.substring(0, nextIdx)
+        n(); doc.text(normalPart, cx, y); cx += doc.getTextWidth(normalPart)
+        remaining = remaining.substring(nextIdx)
+      }
+    }
+    y += 5.8
+  })
+  y += 8
+
+  // "École Polytechnique des Génies"
+  b(); sz(10.5); tc(BLACK)
+  doc.text("École Polytechnique des Génies", ML, y)
+  y += 20
+
+  // ══════════════════════════════════════════════════════════════════════
+  // SIGNATURE — right aligned
+  // ══════════════════════════════════════════════════════════════════════
+  b(); sz(11); tc(BLACK)
+  doc.text(`Fait à Fès, le ${today}`, PW - MR, y, { align: "right" })
+  y += 7
+
+  it(); sz(10.5); tc(BLACK)
+  doc.text("La Direction des Études et du Suivi Pédagogique", PW - MR, y, { align: "right" })
+
+  // ══════════════════════════════════════════════════════════════════════
+  // FOOTER BAR
+  // ══════════════════════════════════════════════════════════════════════
+  const fy = PH - 20
+  doc.setFillColor(...DARK_BLUE)
+  doc.rect(0, fy, PW, 20, "F")
+
+  tc(WHITE); n(); sz(7.5)
   doc.text(
-    "Ce document est généré automatiquement par AbsencePro — Ecole Polytechnique des Génies",
-    pageW / 2, 292, { align: "center" }
+    "22 RUE MOHAMMED HAYANI V.N. ETAGE 4 APP 20 IMM HAZZAZ  30100 FES MAROC",
+    PW / 2, fy + 5, { align: "center" }
+  )
+  doc.text(
+    "Fixe : 05 35 62 15 68       Tél : 06 19 08 66 66       Email : contact@epg.ma",
+    PW / 2, fy + 10, { align: "center" }
+  )
+  doc.text(
+    "IF: 14466362   |   TP: 13680570   |   RC: 79046   |   ICE N°: 000558132000065        www.epg.ma",
+    PW / 2, fy + 15, { align: "center" }
   )
 
-  // ── Sauvegarde ───────────────────────────────────────────────────────────
-  const fileName = `avertissement_${etudiant.nom}_${etudiant.prenom}_${today.replace(/ /g, "_")}.pdf`
-  doc.save(fileName)
+  doc.save(`avertissement_${etudiant.nom}_${etudiant.prenom}.pdf`)
 }

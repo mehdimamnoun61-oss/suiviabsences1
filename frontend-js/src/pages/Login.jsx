@@ -46,7 +46,7 @@ function Login() {
       }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: "1.5rem" }}>
           <img
-            src="/logo.jpg.jpeg"
+            src="/logo.jpg"
             alt="Logo"
             style={{ width: 80, height: 80, borderRadius: 16, objectFit: "cover", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}
           />

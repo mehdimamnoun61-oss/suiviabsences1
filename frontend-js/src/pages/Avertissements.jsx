@@ -38,8 +38,8 @@ function Avertissements() {
 
   const filtered = filterNiveau ? avertissements.filter(a => a.niveau === filterNiveau) : avertissements
 
-  const handleGeneratePDF = (item) => {
-    generateAvertissementPDF({
+  const handleGeneratePDF = async (item) => {
+    await generateAvertissementPDF({
       etudiant: { id: item.id, nom: item.nom, prenom: item.prenom, email: item.email, classe: item.classe },
       modules: [], taux: item.taux, niveau: item.niveau,
     })

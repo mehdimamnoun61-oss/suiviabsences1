@@ -102,6 +102,7 @@ function Navbar({ onMenuToggle }) {
           </svg>
         </button>
         <div className="ph-breadcrumb">
+          <img src="/logo.jpg" alt="Logo" className="ph-logo" />
           <span className="ph-app">AbsencePro</span>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: "#CBD5E1" }}>
             <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

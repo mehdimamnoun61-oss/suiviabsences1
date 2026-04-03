@@ -79,7 +79,7 @@ function Sidebar({ open, onClose }) {
       <div className="sidebar-brand">
         <div className="sidebar-logo">
           <img
-            src="/logo.jpg.jpeg"
+            src="/logo.jpg"
             alt="Logo"
             style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}
           />

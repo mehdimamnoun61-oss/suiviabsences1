@@ -1,6 +1,18 @@
 import { useEffect, useState, useMemo } from "react"
 import api from "../utils/api"
 import { useNavigate } from "react-router-dom"
+import DataTable from "../components/DataTable"
+import Badge from "../components/ui/Badge"
+import { Button } from "../components/ui/Button"
+
+const NIVEAU_VARIANT = { Convocation: "red", Avertissement: "orange", Observation: "yellow", Normal: "green" }
+
+function getNiveau(taux) {
+  if (taux >= 30) return "Convocation"
+  if (taux >= 20) return "Avertissement"
+  if (taux >= 10) return "Observation"
+  return "Normal"
+}
 
 function MesEtudiants() {
   const [classes,      setClasses]      = useState([])
@@ -9,8 +21,9 @@ function MesEtudiants() {
   const [absences,     setAbsences]     = useState([])
   const [seances,      setSeances]      = useState([])
   const [classeId,     setClasseId]     = useState("")
-  const [search,       setSearch]       = useState("")
   const [loading,      setLoading]      = useState(true)
+  const navigate = useNavigate()
+  const today = new Date().toISOString().slice(0, 10)
 
   useEffect(() => {
     Promise.all([
@@ -22,8 +35,6 @@ function MesEtudiants() {
     }).finally(() => setLoading(false))
   }, [])
 
-  const navigate = useNavigate()
-  const today = new Date().toISOString().slice(0, 10)
   const classe = classes.find(c => String(c.id) === String(classeId))
 
   const etusClasse = useMemo(() =>
@@ -31,7 +42,6 @@ function MesEtudiants() {
     [etudiants, classeId]
   )
 
-  // Taux d'absence par etudiant
   const getTaux = (etudiantId) => {
     const affClasse = affectations.filter(a => String(a.classe_id) === String(classeId))
     const seancesClasse = seances.filter(s => affClasse.some(a => String(a.id) === String(s.affectation_id)))
@@ -42,148 +52,99 @@ function MesEtudiants() {
     return Math.round(((nbAbs + nbRet * 0.5) / total) * 1000) / 10
   }
 
-  const getNiveau = (taux) => {
-    if (taux >= 30) return { label: "Convocation",   chip: "chip-red"    }
-    if (taux >= 20) return { label: "Avertissement", chip: "chip-orange" }
-    if (taux >= 10) return { label: "Observation",   chip: "chip-yellow" }
-    return              { label: "Normal",          chip: "chip-green"  }
-  }
+  const enriched = useMemo(() => etusClasse.map(e => {
+    const taux = getTaux(e.id)
+    return { ...e, taux, niveau: getNiveau(taux) }
+  }), [etusClasse, absences, seances, affectations, classeId])
 
-  const filtered = etusClasse.filter(e =>
-    `${e.nom} ${e.prenom} ${e.email}`.toLowerCase().includes(search.toLowerCase())
+  const columns = [
+    {
+      key: "nom",
+      label: "Étudiant",
+      render: (_, row) => (
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0, background: "linear-gradient(135deg,#4F46E5,#6366F1)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 12, fontWeight: 700 }}>
+            {row.nom[0]}{row.prenom[0]}
+          </div>
+          <div>
+            <div style={{ fontWeight: 600 }}>{row.nom} {row.prenom}</div>
+            <div style={{ fontSize: 11.5, color: "#94A3B8" }}>{row.sex}</div>
+          </div>
+        </div>
+      ),
+    },
+    { key: "email",  label: "Email",  sortable: false, render: v => <span style={{ fontSize: 12.5, color: "#64748B" }}>{v}</span> },
+    { key: "tel",    label: "Tél.",   sortable: false },
+    {
+      key: "taux",
+      label: "Taux d'absence",
+      render: (v) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 100 }}>
+          <span style={{ fontWeight: 700, fontSize: 14, color: v >= 30 ? "#DC2626" : v >= 20 ? "#F97316" : v >= 10 ? "#F59E0B" : "#22C55E" }}>{v}%</span>
+          <div style={{ width: 80, height: 4, borderRadius: 2, background: "#E2E8F0", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${Math.min(v, 100)}%`, background: v >= 30 ? "#DC2626" : v >= 20 ? "#F97316" : v >= 10 ? "#F59E0B" : "#22C55E", borderRadius: 2 }} />
+          </div>
+        </div>
+      ),
+    },
+    { key: "niveau", label: "Niveau", render: v => <Badge variant={NIVEAU_VARIANT[v]} dot>{v}</Badge> },
+  ]
+
+  const classeFilterJSX = (
+    <select
+      className="ui-filter-select"
+      value={classeId}
+      onChange={e => setClasseId(e.target.value)}
+      aria-label="Choisir une classe"
+      style={{ minWidth: 220 }}
+    >
+      <option value="">Choisir une classe</option>
+      {classes.map(c => <option key={c.id} value={c.id}>{c.nom_classe} — {c.filiere} — Gr. {c.groupe}</option>)}
+    </select>
   )
-
-  if (loading) return <div className="container-fluid"><div className="empty-box" style={{ padding: 60 }}>Chargement...</div></div>
 
   return (
     <div className="container-fluid">
-      <div className="page-toolbar">
-        <div className="page-toolbar-left">
-          <div className="page-title">Mes etudiants</div>
-          <div className="page-description">Liste des etudiants de votre classe</div>
+      <div className="page-header-bar">
+        <div className="page-header-left">
+          <h1 className="page-header-title">Mes Étudiants</h1>
+          <p className="page-header-desc">Liste des étudiants de votre classe avec suivi des absences</p>
         </div>
-        {classeId && (
-          <div className="d-flex gap-2 align-items-center">
-            <div className="page-badge">{etusClasse.length} etudiants</div>
-            <button className="btn btn-primary btn-sm"
-              onClick={() => navigate(`/saisie-absences?classe=${classeId}&date=${today}`)}>
-              Saisie du jour
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Filtre classe */}
-      <div className="card content-card mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-end">
-            <div className="col-md-4">
-              <label className="label-muted">Classe</label>
-              <select className="form-select" value={classeId} onChange={e => { setClasseId(e.target.value); setSearch("") }}>
-                <option value="">Choisir une classe --</option>
-                {classes.map(c => <option key={c.id} value={c.id}>{c.nom_classe} — {c.filiere} — Groupe {c.groupe}</option>)}
-              </select>
-            </div>
-            {classeId && (
-              <div className="col-md-4">
-                <label className="label-muted">Rechercher</label>
-                <input type="text" className="form-control" placeholder="Nom, prenom, email..."
-                  value={search} onChange={e => setSearch(e.target.value)} />
-              </div>
-            )}
-          </div>
+        <div className="page-header-right">
+          {classeId && (
+            <>
+              <span className="page-count-badge">{etusClasse.length} étudiants</span>
+              <Button
+                variant="primary"
+                icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>}
+                onClick={() => navigate(`/saisie-absences?classe=${classeId}&date=${today}`)}
+              >
+                Saisie du jour
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Info classe */}
       {classe && (
-        <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-          {[
-            ["Classe",  classe.nom_classe],
-            ["Filiere", classe.filiere],
-            ["Niveau",  classe.niveau],
-            ["Groupe",  classe.groupe],
-            ["Annee",   classe.annee_scolaire],
-          ].map(([label, val]) => (
-            <div key={label} style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 10, padding: "8px 16px", fontSize: 13 }}>
-              <span style={{ color: "#94a3b8", marginRight: 6 }}>{label}:</span>
-              <strong style={{ color: "#1e293b" }}>{val}</strong>
+        <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
+          {[["Filière", classe.filiere], ["Niveau", classe.niveau], ["Groupe", classe.groupe], ["Année", classe.annee_scolaire]].map(([label, val]) => (
+            <div key={label} className="page-count-badge" style={{ background: "rgba(100,116,139,0.08)", color: "#475569", borderColor: "rgba(100,116,139,0.15)" }}>
+              <span style={{ color: "#94A3B8" }}>{label}:</span> {val}
             </div>
           ))}
         </div>
       )}
 
-      {/* Table */}
-      {classeId && (
-        <div className="card content-card">
-          <div className="card-body" style={{ padding: 0 }}>
-            {filtered.length === 0 ? (
-              <div className="empty-box">Aucun etudiant trouve.</div>
-            ) : (
-              <table className="table align-middle mb-0" style={{ fontSize: 14 }}>
-                <thead>
-                  <tr style={{ background: "#f8fafc" }}>
-                    <th style={{ padding: "12px 20px", width: 40 }}>#</th>
-                    <th style={{ padding: "12px 16px" }}>Etudiant</th>
-                    <th style={{ padding: "12px 16px" }}>Email</th>
-                    <th style={{ padding: "12px 16px" }}>Tel</th>
-                    <th style={{ padding: "12px 16px", textAlign: "center" }}>Taux absence</th>
-                    <th style={{ padding: "12px 16px", textAlign: "center" }}>Niveau</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((e, i) => {
-                    const taux   = getTaux(e.id)
-                    const niveau = getNiveau(taux)
-                    return (
-                      <tr key={e.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "12px 20px", color: "#9ca3af" }}>{i + 1}</td>
-                        <td style={{ padding: "12px 16px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <div style={{
-                              width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
-                              background: "linear-gradient(135deg,#2563eb,#3b82f6)",
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              color: "white", fontSize: 13, fontWeight: 700,
-                            }}>
-                              {e.nom[0]}{e.prenom[0]}
-                            </div>
-                            <div>
-                              <div style={{ fontWeight: 600 }}>{e.nom} {e.prenom}</div>
-                              <div style={{ fontSize: 12, color: "#9ca3af" }}>{e.sex}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: "12px 16px", color: "#6b7280", fontSize: 13 }}>{e.email}</td>
-                        <td style={{ padding: "12px 16px", color: "#6b7280", fontSize: 13 }}>{e.tel}</td>
-                        <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                            <span style={{ fontWeight: 700, fontSize: 15, color: taux >= 30 ? "#dc2626" : taux >= 20 ? "#f97316" : taux >= 10 ? "#f59e0b" : "#22c55e" }}>
-                              {taux}%
-                            </span>
-                            <div style={{ width: 80, height: 5, borderRadius: 3, background: "#e5e7eb", overflow: "hidden" }}>
-                              <div style={{ height: "100%", width: `${Math.min(taux, 100)}%`, background: taux >= 30 ? "#dc2626" : taux >= 20 ? "#f97316" : taux >= 10 ? "#f59e0b" : "#22c55e" }} />
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                          <span className={`value-chip ${niveau.chip}`}>{niveau.label}</span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-      )}
-
-      {!classeId && (
-        <div className="card content-card">
-          <div className="empty-box" style={{ padding: 48 }}>Choisissez une classe pour afficher les etudiants</div>
-        </div>
-      )}
+      <DataTable
+        title={classeId ? `Étudiants — ${classe?.nom_classe || ""}` : "Étudiants"}
+        columns={columns}
+        data={enriched}
+        loading={loading}
+        emptyText={classeId ? "Aucun étudiant dans cette classe." : "Choisissez une classe pour afficher les étudiants."}
+        searchKeys={["nom", "prenom", "email"]}
+        filters={classeFilterJSX}
+      />
     </div>
   )
 }

@@ -127,14 +127,14 @@ function Dashboard() {
   }
 
   const cards = [
-    { title: "Classes",        value: stats.classes,        style: "bg-soft-primary" },
-    { title: "Etudiants",      value: stats.etudiants,      style: "bg-soft-success" },
-    { title: "Modules",        value: stats.modules,        style: "bg-soft-warning" },
-    { title: "Enseignants",    value: stats.enseignants,    style: "bg-soft-info"    },
-    { title: "Affectations",   value: stats.affectations,   style: "bg-soft-dark"    },
-    { title: "Seances",        value: stats.seances,        style: "bg-soft-primary" },
-    { title: "Absences",       value: stats.absences,       style: "bg-soft-danger"  },
-    { title: "Alertes",        value: stats.avertissements, style: "bg-soft-purple"  },
+    { title: "Classes",        value: stats.classes },
+    { title: "Etudiants",      value: stats.etudiants },
+    { title: "Modules",        value: stats.modules },
+    { title: "Enseignants",    value: stats.enseignants },
+    { title: "Affectations",   value: stats.affectations },
+    { title: "Seances",        value: stats.seances },
+    { title: "Absences",       value: stats.absences },
+    { title: "Alertes",        value: stats.avertissements },
   ]
 
   if (loading) return <div className="container-fluid"><div className="empty-box" style={{ padding: 60 }}>Chargement...</div></div>
@@ -153,12 +153,11 @@ function Dashboard() {
         {cards.map((card, i) => (
           <div className="col-md-3 col-sm-6" key={i}>
             <div className="card stats-card h-100">
-              <div className="card-body d-flex justify-content-between align-items-center">
+              <div className="card-body">
                 <div>
                   <div className="stats-label">{card.title}</div>
                   <div className="stats-value">{card.value}</div>
                 </div>
-                <div className={`stats-icon ${card.style}`} />
               </div>
             </div>
           </div>
@@ -168,21 +167,18 @@ function Dashboard() {
       {/* Alertes automatiques */}
       <div className="row g-3 mb-4">
         {[
-          { label: "Convocation (30%+)",   val: alertes.conv,  bg: "#fee2e2", col: "#dc2626" },
-          { label: "Avertissement (20%+)", val: alertes.avert, bg: "#ffedd5", col: "#f97316" },
-          { label: "Observation (10%+)",   val: alertes.obs,   bg: "#fef3c7", col: "#f59e0b" },
-          { label: "Normal (<10%)",         val: alertes.norm,  bg: "#dcfce7", col: "#16a34a" },
+          { label: "Convocation (30%+)",   val: alertes.conv },
+          { label: "Avertissement (20%+)", val: alertes.avert },
+          { label: "Observation (10%+)",   val: alertes.obs },
+          { label: "Normal (<10%)",        val: alertes.norm },
         ].map((s, i) => (
           <div className="col-md-3 col-sm-6" key={i}>
             <div className="card content-card h-100">
-              <div className="card-body d-flex justify-content-between align-items-center">
+              <div className="card-body">
                 <div>
                   <div className="stats-label">{s.label}</div>
-                  <div className="stats-value" style={{ color: s.col }}>{s.val}</div>
+                  <div className="stats-value">{s.val}</div>
                   <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>etudiants</div>
-                </div>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", color: s.col, fontWeight: 800, fontSize: 16 }}>
-                  {s.val}
                 </div>
               </div>
             </div>
